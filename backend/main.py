@@ -15,6 +15,7 @@ app = FastAPI()
 def main():
     return {"message": "Hello, World!"}
 
+
 @app.get("/weather/{city}")
 def get_weather(city: str):
     data = requests.get(url.replace("[location]", city))
