@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head> 
+        <title>Weather Broadcast</title>
+    </head>
+    <body>
+        <div>
+            <h1>Tra cứu thời tiết</h1>
+            <div>
+                <input type="text" id="city" placeholder="Nhập tên thành phố">
+                <button onclick = "timThoiTiet()" id="search">Tìm kiếm</button>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <h2 id ="city-name">Thành phố: ...</h2>
+                <p id="weather-info"> 
+                    Nhiệt độ: <span id = "temp">...</span> độ F, 
+                    Điều kiện: <span id="condition">...</span>
+                </p>
+            </div>
+
+        </div>
+        <script>
+            async function timThoiTiet() {
+              // 1. Lấy chữ mà người dùng gõ vào ô input
+                let tenThanhPho = document.getElementById("city").value;
+            
+                // 2. Dùng 'fetch' (giống requests.get của Python) để gọi máy chủ FastAPI
+                // Cần có await để máy tính đứng chờ dữ liệu tải về mạng
+                let response = await fetch("http://localhost:8000/weather/" + tenThanhPho);
+            
+                // 3. Biến kết quả thành JSON (giống response.json() trong Python)
+                let data = await response.json();
+            
+                // 4. Nhét dữ liệu nhận được vào lại giao diện HTML
+                document.getElementById("city-name").innerText = "Thành phố: " + data.city;
+                document.getElementById("temp").innerText = data.temperature;
+                document.getElementById("condition").innerText = data.condition;
+            }
+        </script>
+    </body>
+</html>
