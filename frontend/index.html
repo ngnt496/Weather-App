@@ -83,7 +83,7 @@
             transform: scale(0.98);
         }
 
-        /* ===== Loading & Error ===== */
+        /* ===== Loading & Error (Đỏ mờ) ===== */
         .loading-state {
             text-align: center;
             color: #0284c7;
@@ -94,18 +94,26 @@
         }
 
         .error-state {
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 10px 14px;
-            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.12); /* Màu đỏ mờ nhẹ nhàng */
+            color: #b91c1c;
+            padding: 14px 18px;
+            border-radius: 12px;
             font-size: 14px;
+            font-weight: 500;
             text-align: center;
-            border: 1px solid #fecaca;
+            border: 1px solid rgba(239, 68, 68, 0.25);
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
+        }
+
+        /* ===== Khung chứa toàn bộ dữ liệu thời tiết ===== */
+        .weather-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         /* ===== Tổng quan thời tiết ===== */
@@ -120,8 +128,8 @@
 
         .city-name {
             text-transform: uppercase;
-            font-size: 32px;
-            font-weight: 600;
+            font-size: 36px;
+            font-weight: 700;
             color: #1e293b;
             margin-bottom: 6px;
         }
@@ -298,69 +306,72 @@
             ⏳ Đang tải dữ liệu...
         </div>
 
-        <!-- Thông báo lỗi -->
+        <!-- Thông báo lỗi (Màu đỏ mờ) -->
         <div id="error-message" class="error-state" style="display: none;"></div>
 
-        <!-- PHẦN 1: Tổng quan thời tiết -->
-        <div class="weather-overview">
-            <h2 id="city-name" class="city-name">Thành phố: ...</h2>
-            <div class="temp-display"><span id="temp">...</span>°C</div>
-            <p id="condition" class="condition-badge">...</p>
-        </div>
+        <!-- Khung chứa dữ liệu thời tiết (Sẽ bị xóa/ẩn khi có lỗi) -->
+        <div id="weather-content" class="weather-content" style="display: none;">
+            <!-- PHẦN 1: Tổng quan thời tiết -->
+            <div class="weather-overview">
+                <h2 id="city-name" class="city-name">Thành phố: ...</h2>
+                <div class="temp-display"><span id="temp">...</span>°C</div>
+                <p id="condition" class="condition-badge">...</p>
+            </div>
 
-        <!-- PHẦN 2: Lưới 4 chỉ số phụ -->
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-header">
-                    <span class="metric-icon">💧</span>
-                    <span>Độ ẩm</span>
+            <!-- PHẦN 2: Lưới 4 chỉ số phụ -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-icon">💧</span>
+                        <span>Độ ẩm</span>
+                    </div>
+                    <div class="metric-value">
+                        <span id="humidity">...</span><span class="metric-unit">%</span>
+                    </div>
                 </div>
-                <div class="metric-value">
-                    <span id="humidity">...</span><span class="metric-unit">%</span>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-icon">🌧️</span>
+                        <span>Lượng mưa</span>
+                    </div>
+                    <div class="metric-value">
+                        <span id="precip">...</span><span class="metric-unit">mm</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-icon">☀️</span>
+                        <span>Chỉ số UV</span>
+                    </div>
+                    <div class="metric-value">
+                        <span id="uv">...</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-icon">🍃</span>
+                        <span>Chất lượng KK (AQI)</span>
+                    </div>
+                    <div class="metric-value">
+                        <span id="aqi">...</span>
+                    </div>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-header">
-                    <span class="metric-icon">🌧️</span>
-                    <span>Lượng mưa</span>
-                </div>
-                <div class="metric-value">
-                    <span id="precip">...</span><span class="metric-unit">mm</span>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-header">
-                    <span class="metric-icon">☀️</span>
-                    <span>Chỉ số UV</span>
-                </div>
-                <div class="metric-value">
-                    <span id="uv">...</span>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-header">
-                    <span class="metric-icon">🍃</span>
-                    <span>Chất lượng KK (AQI)</span>
-                </div>
-                <div class="metric-value">
-                    <span id="aqi">...</span>
-                </div>
-            </div>
-        </div>
 
-        <!-- PHẦN 3: Biểu đồ nhiệt độ theo giờ (Chart.js) -->
-        <div>
-            <h3 class="section-title">📈 Nhiệt độ theo giờ (hôm nay)</h3>
-            <div class="chart-wrapper">
-                <canvas id="hourlyChart"></canvas>
+            <!-- PHẦN 3: Biểu đồ nhiệt độ theo giờ (Chart.js) -->
+            <div>
+                <h3 class="section-title">📈 Nhiệt độ theo giờ (hôm nay)</h3>
+                <div class="chart-wrapper">
+                    <canvas id="hourlyChart"></canvas>
+                </div>
             </div>
-        </div>
 
-        <!-- PHẦN 4: Dự báo 7 ngày -->
-        <div>
-            <h3 class="section-title">📅 Dự báo 7 ngày tới</h3>
-            <div id="forecast-list" class="forecast-list">
-                <!-- Các forecast-card sẽ được render động bằng JS -->
+            <!-- PHẦN 4: Dự báo 7 ngày -->
+            <div>
+                <h3 class="section-title">📅 Dự báo 7 ngày tới</h3>
+                <div id="forecast-list" class="forecast-list">
+                    <!-- Các forecast-card sẽ được render động bằng JS -->
+                </div>
             </div>
         </div>
     </div>
@@ -390,12 +401,37 @@
         // ===== Mapping ngày trong tuần sang tiếng Việt =====
         const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 
+        // ===== Sprint 4: Tự động tải lại với LocalStorage khi mở trang web =====
+        window.onload = function() {
+            const lastCity = localStorage.getItem("lastCity");
+            if (lastCity) {
+                document.getElementById("city").value = lastCity;
+                timThoiTiet();
+            }
+        };
+
         // Hỗ trợ nhấn Enter trong ô tìm kiếm
         document.getElementById("city").addEventListener("keyup", function(event) {
             if (event.key === "Enter") {
                 timThoiTiet();
             }
         });
+
+        // Hàm xóa dữ liệu cũ khi gặp lỗi để tránh gây nhầm lẫn
+        function xoaDuLieuCu() {
+            const weatherContent = document.getElementById("weather-content");
+            if (weatherContent) {
+                weatherContent.style.display = "none";
+            }
+            if (hourlyChartInstance) {
+                hourlyChartInstance.destroy();
+                hourlyChartInstance = null;
+            }
+            const forecastList = document.getElementById("forecast-list");
+            if (forecastList) {
+                forecastList.innerHTML = "";
+            }
+        }
 
         async function timThoiTiet() {
             let tenThanhPho = document.getElementById("city").value.trim();
@@ -406,6 +442,7 @@
 
             const loadingEl = document.getElementById("loading");
             const errorEl = document.getElementById("error-message");
+            const weatherContent = document.getElementById("weather-content");
 
             // Hiển thị Loading, ẩn lỗi cũ
             loadingEl.style.display = "block";
@@ -413,11 +450,19 @@
 
             try {
                 let response = await fetch("http://localhost:8000/weather/" + encodeURIComponent(tenThanhPho));
-                if (!response.ok) {
-                    throw new Error("Không tìm thấy thông tin thành phố hoặc lỗi máy chủ!");
+                
+                // Sprint 4: Bắt mã lỗi 404 (hoặc response không thành công)
+                if (response.status === 404 || !response.ok) {
+                    throw new Error("Không tìm thấy dữ liệu cho thành phố này");
                 }
 
                 let data = await response.json();
+
+                // Sprint 4: Lưu thành phố hợp lệ vừa tìm vào LocalStorage
+                localStorage.setItem("lastCity", tenThanhPho);
+
+                // Hiển thị khung dữ liệu thời tiết
+                weatherContent.style.display = "flex";
 
                 // ===== 1. Cập nhật phần Tổng quan =====
                 document.getElementById("city-name").innerText = data.city;
@@ -437,8 +482,12 @@
                 renderDuBao7Ngay(data.days);
 
             } catch (error) {
-                errorEl.innerText = error.message;
+                // Hiển thị thông báo màu đỏ mờ
+                errorEl.innerText = error.message || "Không tìm thấy dữ liệu cho thành phố này";
                 errorEl.style.display = "block";
+
+                // Sprint 4: Xóa sạch bảng dữ liệu cũ
+                xoaDuLieuCu();
             } finally {
                 loadingEl.style.display = "none";
             }
@@ -451,11 +500,9 @@
          *   - temps:  mảng các nhiệt độ (trục Y)
          */
         function veDoThiTheoGio(hours) {
-            // Tách mảng hours thành 2 mảng con
-            const labels = hours.map(h => h.time);     // ["00:00", "01:00", ...]
-            const temps  = hours.map(h => h.temp);     // [28.0, 27.5, ...]
+            const labels = hours.map(h => h.time);
+            const temps  = hours.map(h => h.temp);
 
-            // Hủy biểu đồ cũ nếu có (tránh lỗi khi vẽ lại)
             if (hourlyChartInstance) {
                 hourlyChartInstance.destroy();
             }
@@ -474,7 +521,7 @@
                         borderWidth: 2.5,
                         pointRadius: 3,
                         pointBackgroundColor: "#0284c7",
-                        tension: 0.4,       // Đường cong mượt
+                        tension: 0.4,
                         fill: true
                     }]
                 },
@@ -495,7 +542,7 @@
                             grid: { display: false },
                             ticks: {
                                 font: { size: 11 },
-                                maxTicksLimit: 12,    // Hiển thị tối đa 12 mốc giờ cho gọn
+                                maxTicksLimit: 12,
                                 color: "#64748b"
                             }
                         },
@@ -516,28 +563,21 @@
 
         /**
          * Hàm render danh sách dự báo 7 ngày
-         * Dùng forEach duyệt mảng days, với mỗi ngày:
-         *   - Tạo động thẻ HTML bằng document.createElement
-         *   - Chèn (append) vào khung danh sách
          */
         function renderDuBao7Ngay(days) {
             const container = document.getElementById("forecast-list");
-            container.innerHTML = "";  // Xóa nội dung cũ
+            container.innerHTML = "";
 
             days.forEach(function(day) {
-                // Parse ngày để lấy thứ trong tuần
                 const dateObj = new Date(day.date + "T00:00:00");
                 const thuTrongTuan = dayNames[dateObj.getDay()];
                 const ngayThang = dateObj.getDate() + "/" + (dateObj.getMonth() + 1);
 
-                // Lấy emoji icon tương ứng
                 const emoji = iconMap[day.icon] || "🌡️";
 
-                // ---- Tạo động thẻ HTML ----
                 const card = document.createElement("div");
                 card.className = "forecast-card";
 
-                // Cột 1: Thứ + Ngày
                 const dayDiv = document.createElement("div");
                 dayDiv.className = "forecast-day";
                 const dayNameEl = document.createElement("div");
@@ -549,17 +589,14 @@
                 dayDiv.appendChild(dayNameEl);
                 dayDiv.appendChild(dayDateEl);
 
-                // Cột 2: Icon
                 const iconDiv = document.createElement("div");
                 iconDiv.className = "forecast-icon";
                 iconDiv.textContent = emoji;
 
-                // Cột 3: Điều kiện thời tiết
                 const condDiv = document.createElement("div");
                 condDiv.className = "forecast-condition";
                 condDiv.textContent = day.condition;
 
-                // Cột 4: Nhiệt độ max / min
                 const tempDiv = document.createElement("div");
                 tempDiv.className = "forecast-temps";
                 tempDiv.innerHTML =
@@ -567,16 +604,16 @@
                     '<span class="temp-sep">/</span>' +
                     '<span class="temp-low">' + Math.round(day.tempmin) + '°</span>';
 
-                // Chèn (append) các phần tử con vào card
                 card.appendChild(dayDiv);
                 card.appendChild(iconDiv);
                 card.appendChild(condDiv);
                 card.appendChild(tempDiv);
 
-                // Chèn card vào danh sách
                 container.appendChild(card);
             });
         }
     </script>
 </body>
+</html>
+
 </html>
