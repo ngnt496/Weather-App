@@ -35,7 +35,9 @@ Weather-App/
 ├── backend/
 │   └── main.py          # Server FastAPI xử lý API, làm sạch dữ liệu & bắt lỗi 404
 ├── frontend/
-│   └── index.html       # Giao diện Dashboard (LocalStorage, Chart.js, CSS Grid/Flexbox)
+│   ├── index.html       # Khung cấu trúc HTML của Dashboard
+│   ├── style.css        # Toàn bộ định dạng CSS (Flexbox, Grid, hiệu ứng, responsive)
+│   └── app.js           # Logic gọi API, Chart.js, LocalStorage & render động
 ├── config.toml          # File lưu cấu hình & API key (không commit lên git)
 ├── requirements.txt     # Danh sách thư viện Python cần thiết
 └── README.md            # Tài liệu hướng dẫn sử dụng
