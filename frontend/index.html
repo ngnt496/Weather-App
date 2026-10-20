@@ -1,43 +1,322 @@
 <!DOCTYPE html>
-<html>
-    <head> 
-        <title>Weather Broadcast</title>
-    </head>
-    <body>
-        <div>
-            <h1>Tra cứu thời tiết</h1>
-            <div>
-                <input type="text" id="city" placeholder="Nhập tên thành phố">
-                <button onclick = "timThoiTiet()" id="search">Tìm kiếm</button>
-            </div>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-            <div style="margin-top: 20px;">
-                <h2 id ="city-name">Thành phố: ...</h2>
-                <p id="weather-info"> 
-                    Nhiệt độ: <span id = "temp">...</span> độ F, 
-                    Điều kiện: <span id="condition">...</span>
-                </p>
-            </div>
+        body {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
+        .dashboard-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            text-align: center;
+        }
+
+        /* Khung tìm kiếm */
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .search-box button {
+            padding: 12px 20px;
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .search-box button:hover {
+            background: #0369a1;
+        }
+
+        .search-box button:active {
+            transform: scale(0.98);
+        }
+
+        /* Trạng thái Loading và Thông báo lỗi */
+        .loading-state {
+            text-align: center;
+            color: #0284c7;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 8px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .error-state {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            border: 1px solid #fecaca;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* PHẦN TRÊN: Tên thành phố + Nhiệt độ tổng quan (Flexbox) */
+        .weather-overview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .city-name {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .temp-display {
+            font-size: 56px;
+            font-weight: 800;
+            color: #0284c7;
+            line-height: 1.1;
+        }
+
+        .condition-badge {
+            margin-top: 8px;
+            display: inline-block;
+            background: #f0f9ff;
+            color: #0369a1;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+
+        /* PHẦN DƯỚI: Lưới 4 ô vuông nhỏ (CSS Grid) */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .metric-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .metric-icon {
+            font-size: 18px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .metric-unit {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: normal;
+            margin-left: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1 class="header-title">Weather Dashboard</h1>
+
+        <!-- Thanh tìm kiếm -->
+        <div class="search-box">
+            <input type="text" id="city" placeholder="Nhập tên thành phố (vd: Hanoi, Tokyo)...">
+            <button id="search" onclick="timThoiTiet()">Tìm kiếm</button>
         </div>
-        
-        <script>
-            async function timThoiTiet() {
-              // 1. Lấy chữ mà người dùng gõ vào ô input
-                let tenThanhPho = document.getElementById("city").value;
-            
-                // 2. Dùng 'fetch' (giống requests.get của Python) để gọi máy chủ FastAPI
-                // Cần có await để máy tính đứng chờ dữ liệu tải về mạng
-                let response = await fetch("http://localhost:8000/weather/" + tenThanhPho);
-            
-                // 3. Biến kết quả thành JSON (giống response.json() trong Python)
-                let data = await response.json();
-            
-                // 4. Nhét dữ liệu nhận được vào lại giao diện HTML
-                document.getElementById("city-name").innerText = "Thành phố: " + data.city;
-                document.getElementById("temp").innerText = data.temperature;
-                document.getElementById("condition").innerText = data.condition;
+
+        <!-- Trạng thái Loading -->
+        <div id="loading" class="loading-state" style="display: none;">
+            ⏳ Đang tải dữ liệu...
+        </div>
+
+        <!-- Thông báo lỗi (nếu có) -->
+        <div id="error-message" class="error-state" style="display: none;"></div>
+
+        <!-- PHẦN TRÊN: Tổng quan thời tiết -->
+        <div class="weather-overview">
+            <h2 id="city-name" class="city-name">Thành phố: ...</h2>
+            <div class="temp-display"><span id="temp">...</span>°C</div>
+            <p id="condition" class="condition-badge">...</p>
+        </div>
+
+        <!-- PHẦN DƯỚI: Lưới 4 ô chỉ số phụ -->
+        <div class="metrics-grid">
+            <!-- Ô 1: Độ ẩm -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-icon">💧</span>
+                    <span>Độ ẩm</span>
+                </div>
+                <div class="metric-value">
+                    <span id="humidity">...</span><span class="metric-unit">%</span>
+                </div>
+            </div>
+
+            <!-- Ô 2: Lượng mưa -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-icon">🌧️</span>
+                    <span>Lượng mưa</span>
+                </div>
+                <div class="metric-value">
+                    <span id="precip">...</span><span class="metric-unit">mm</span>
+                </div>
+            </div>
+
+            <!-- Ô 3: Chỉ số UV -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-icon">☀️</span>
+                    <span>Chỉ số UV</span>
+                </div>
+                <div class="metric-value">
+                    <span id="uv">...</span>
+                </div>
+            </div>
+
+            <!-- Ô 4: Chỉ số AQI -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-icon">🍃</span>
+                    <span>Chất lượng KK (AQI)</span>
+                </div>
+                <div class="metric-value">
+                    <span id="aqi">...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hỗ trợ nhấn Enter trong ô tìm kiếm
+        document.getElementById("city").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                timThoiTiet();
             }
-        </script>
-    </body>
+        });
+
+        async function timThoiTiet() {
+            let tenThanhPho = document.getElementById("city").value.trim();
+            if (!tenThanhPho) {
+                alert("Vui lòng nhập tên thành phố!");
+                return;
+            }
+
+            const loadingEl = document.getElementById("loading");
+            const errorEl = document.getElementById("error-message");
+
+            // Hiển thị trạng thái Loading và ẩn lỗi cũ
+            loadingEl.style.display = "block";
+            errorEl.style.display = "none";
+
+            try {
+                // Gọi API backend
+                let response = await fetch("http://localhost:8000/weather/" + encodeURIComponent(tenThanhPho));
+                
+                if (!response.ok) {
+                    throw new Error("Không tìm thấy thông tin thành phố hoặc lỗi máy chủ!");
+                }
+
+                let data = await response.json();
+
+                // 1. Cập nhật phần trên (Tổng quan)
+                document.getElementById("city-name").innerText = data.city;
+                document.getElementById("temp").innerText = data.current.temp ?? "--";
+                document.getElementById("condition").innerText = data.current.condition ?? "--";
+
+                // 2. Cập nhật phần dưới (Lưới 4 chỉ số phụ)
+                document.getElementById("humidity").innerText = data.current.humidity ?? "--";
+                document.getElementById("precip").innerText = data.current.precip ?? 0;
+                document.getElementById("uv").innerText = data.current.uv ?? "--";
+                document.getElementById("aqi").innerText = data.current.aqi ?? "N/A";
+
+            } catch (error) {
+                errorEl.innerText = error.message;
+                errorEl.style.display = "block";
+            } finally {
+                // Ẩn trạng thái Loading khi hoàn thành
+                loadingEl.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
+
 </html>
