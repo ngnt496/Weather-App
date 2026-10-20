@@ -7,8 +7,11 @@ with open("config.toml", "rb") as f:
     config = tomllib.load(f)
 API_KEY = config["api"]["api_key"]
 
-# Sử dụng unitGroup=metric để lấy đơn vị độ C và mm
-url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/[location]?unitGroup=metric&key={API_KEY}"
+# Cần chỉ định elements chứa 'aqius' để Visual Crossing trả về chỉ số không khí theo chuẩn US EPA
+url = (
+    "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/[location]"
+    f"?unitGroup=metric&elements=datetime,temp,conditions,humidity,precip,uvindex,aqius&key={API_KEY}"
+)
 
 app = FastAPI()
 
@@ -28,7 +31,10 @@ def main():
 def get_weather(city: str):
     res = requests.get(url.replace("[location]", city))
     if res.status_code != 200:
-        raise HTTPException(status_code=res.status_code, detail="Không tìm thấy thành phố hoặc lỗi từ nhà cung cấp thời tiết.")
+        raise HTTPException(
+            status_code=res.status_code, 
+            detail="Không tìm thấy thành phố hoặc lỗi từ nhà cung cấp thời tiết."
+        )
     
     data = res.json()
     current = data.get("currentConditions", {})
@@ -41,6 +47,6 @@ def get_weather(city: str):
             "humidity": current.get("humidity"),
             "precip": current.get("precip") if current.get("precip") is not None else 0,
             "uv": current.get("uvindex"),
-            "aqi": current.get("aqi") if current.get("aqi") is not None else "N/A"
+            "aqi": current.get("aqius") if current.get("aqius") is not None else "N/A"
         }
     }
